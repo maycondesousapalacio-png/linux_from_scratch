@@ -1,4 +1,6 @@
+
 #           PREPARAÇÃO DA PARTIÇÃO
+
 
 # Cria partição usando cfdisk (ferramenta gráfica de particionamento)
 sudo cfdisk /dev/sda3
@@ -20,7 +22,9 @@ sudo nano /root/.bashrc
 # Verifica se a variável foi definida corretamente
 echo $LFS  # deve mostrar /mnt/lfs
 
+
 #           MONTANDO PARTIÇÃO LFS
+
 
 # Cria diretório de montagem
 sudo mkdir -pv $LFS

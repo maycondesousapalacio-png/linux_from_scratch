@@ -1,6 +1,6 @@
-#PREPARANDO O SISTEMA HOSPEDEIRO
 
 #         VERIFICANDO REQUISITOS DO SISTEMA
+
 
 # Cria script para verificar versões das ferramentas de desenvolvimento críticas
 cat > version-check.sh << "EOF"
@@ -107,6 +107,7 @@ bash version-check.sh
 
 
 #         INSTALAÇÃO DE PACOTES NECESSÁRIOS
+
 
 # Instala ferramentas necessárias que podem estar faltando
 sudo apt install gawk m4 texinfo bison 
