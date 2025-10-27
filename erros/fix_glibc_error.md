@@ -92,10 +92,10 @@ cd $LFS
 
 # Montar sistemas de arquivos virtuais
 mount -v --bind /dev $LFS/dev
-mount -v --bind /dev/pts $LFS/dev/pts
-mount -v --bind /proc $LFS/proc
-mount -v --bind /sys $LFS/sys
-mount -v --bind /run $LFS/run
+mount -vt devpts devpts -o gid=5,mode=0620 $LFS/dev/pts
+mount -vt proc proc $LFS/proc
+mount -vt sysfs sysfs $LFS/sys
+mount -vt tmpfs tmpfs $LFS/run
 
 # Entrar no chroot com variáveis corretas
 chroot "$LFS" /usr/bin/env -i \
