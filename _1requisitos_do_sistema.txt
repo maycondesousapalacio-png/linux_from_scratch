@@ -1127,3 +1127,11 @@ echo $?
 make install
 
 cd ../     tudo feito
+tar xvf bc-7.0.3.tar.xz 
+cd bc-7.0.3/
+CC='gcc -std=c99' ./configure --prefix=/usr -G -O3 -r     aguardando esse
+echo $?
+make -j1
+echo $?
+make test
+make install
