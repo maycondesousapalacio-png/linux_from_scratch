@@ -1126,4 +1126,4 @@ make -j1 check
 echo $?
 make install
 
-cd ../
+cd ../     tudo feito
