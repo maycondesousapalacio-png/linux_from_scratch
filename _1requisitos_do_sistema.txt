@@ -1122,7 +1122,8 @@ cd m4-1.4.20/
 echo $?
 make -j1
 echo $?
-make -j1 check    aguardando esse
+make -j1 check
 echo $?
 make install
 
+cd ../
