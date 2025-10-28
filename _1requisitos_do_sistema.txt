@@ -1,0 +1,1128 @@
+2.2. Host System Requirements
+
+cat > version-check.sh << "EOF"
+#!/bin/bash
+# A script to list version numbers of critical development tools
+
+# If you have tools installed in other directories, adjust PATH here AND
+# in ~lfs/.bashrc (section 4.4) as well.
+
+LC_ALL=C 
+PATH=/usr/bin:/bin
+
+bail() { echo "FATAL: $1"; exit 1; }
+grep --version > /dev/null 2> /dev/null || bail "grep does not work"
+sed '' /dev/null || bail "sed does not work"
+sort   /dev/null || bail "sort does not work"
+
+ver_check()
+{
+   if ! type -p $2 &>/dev/null
+   then 
+     echo "ERROR: Cannot find $2 ($1)"; return 1; 
+   fi
+   v=$($2 --version 2>&1 | grep -E -o '[0-9]+\.[0-9\.]+[a-z]*' | head -n1)
+   if printf '%s\n' $3 $v | sort --version-sort --check &>/dev/null
+   then 
+     printf "OK:    %-9s %-6s >= $3\n" "$1" "$v"; return 0;
+   else 
+     printf "ERROR: %-9s is TOO OLD ($3 or later required)\n" "$1"; 
+     return 1; 
+   fi
+}
+
+ver_kernel()
+{
+   kver=$(uname -r | grep -E -o '^[0-9\.]+')
+   if printf '%s\n' $1 $kver | sort --version-sort --check &>/dev/null
+   then 
+     printf "OK:    Linux Kernel $kver >= $1\n"; return 0;
+   else 
+     printf "ERROR: Linux Kernel ($kver) is TOO OLD ($1 or later required)\n" "$kver"; 
+     return 1; 
+   fi
+}
+
+# Coreutils first because --version-sort needs Coreutils >= 7.0
+ver_check Coreutils      sort     8.1 || bail "Coreutils too old, stop"
+ver_check Bash           bash     3.2
+ver_check Binutils       ld       2.13.1
+ver_check Bison          bison    2.7
+ver_check Diffutils      diff     2.8.1
+ver_check Findutils      find     4.2.31
+ver_check Gawk           gawk     4.0.1
+ver_check GCC            gcc      5.4
+ver_check "GCC (C++)"    g++      5.4
+ver_check Grep           grep     2.5.1a
+ver_check Gzip           gzip     1.3.12
+ver_check M4             m4       1.4.10
+ver_check Make           make     4.0
+ver_check Patch          patch    2.5.4
+ver_check Perl           perl     5.8.8
+ver_check Python         python3  3.4
+ver_check Sed            sed      4.1.5
+ver_check Tar            tar      1.22
+ver_check Texinfo        texi2any 5.0
+ver_check Xz             xz       5.0.0
+ver_kernel 5.4
+
+if mount | grep -q 'devpts on /dev/pts' && [ -e /dev/ptmx ]
+then echo "OK:    Linux Kernel supports UNIX 98 PTY";
+else echo "ERROR: Linux Kernel does NOT support UNIX 98 PTY"; fi
+
+alias_check() {
+   if $1 --version 2>&1 | grep -qi $2
+   then printf "OK:    %-4s is $2\n" "$1";
+   else printf "ERROR: %-4s is NOT $2\n" "$1"; fi
+}
+echo "Aliases:"
+alias_check awk GNU
+alias_check yacc Bison
+alias_check sh Bash
+
+echo "Compiler check:"
+if printf "int main(){}" | g++ -x c++ -
+then echo "OK:    g++ works";
+else echo "ERROR: g++ does NOT work"; fi
+rm -f a.out
+
+if [ "$(nproc)" = "" ]; then
+   echo "ERROR: nproc is not available or it produces empty output"
+else
+   echo "OK: nproc reports $(nproc) logical cores are available"
+fi
+EOF
+
+bash version-check.sh
+
+sudo apt install gawk m4 textinfo bison 
+sudo ln -sf /bin/bash /bin/sh
+
+sudo cfdisk /dev/sda3
+sudo update-grub
+
+sudo mkfs.ext4 -v /dev/sda3
+
+export LFS=/mnt/lfs  esse comando foi colado e gravado no terminal que o comando de baixo abre
+sudo nano /root/.bashrc
+echo $LFS     mostra  /mnt/lfs
+
+sudo mkdir -pv $LFS
+ls /mnt/
+sudo mount -v /dev/sda3 $LFS
+
+nano /etc/fstab       foi criado /dev/sda3  /mnt/lfs  ext4  defaults  1 1
+
+sudo mkdir -v $LFS/sources
+sudo chmod -v a+wt $LFS/sources
+
+cd $LFS
+cd sources/
+
+wget https://www.linuxfromscratch.org/lfs/view/stable/wget-list-sysv
+wget --input-file=wget-list-sysv --continue
+
+sudo mkdir -pv etc var
+sudo mkdir -pv usr/
+
+no usr/   criar essas três pastas
+sudo mkdir -pv bin/
+sudo mkdir -pv lib/
+sudo mkdir -pv bin/
+
+para criar os links em /mnt/lfs
+sudo -i      para hoot
+root@lenovolubuntu:~# for i in bin lib sbin; do
+> ln -sv usr/$i $LFS/$i
+> done
+'/mnt/lfs/bin' -> 'usr/bin'
+'/mnt/lfs/lib' -> 'usr/lib'
+'/mnt/lfs/sbin' -> 'usr/sbin'
+exit
+
+sudo mkdir -pv $LFS/lib64
+sudo mkdir -pv tools
+
+sudo -i
+
+groupadd lfs
+useradd -s /bin/bash -g lfs -m -k /dev/null lfs
+passwd lfs      a senha é Pitbulls
+chown -v lfs $LFS/usr
+chown -v lfs $LFS/lib
+chown -v lfs $LFS/lib64
+chown -v lfs $LFS/bin
+chown -v lfs $LFS/sbin
+chown -v lfs $LFS/tools
+chown -v lfs $LFS/etc
+chown -v lfs $LFS/var
+
+su - lfs     trocando o usuário de hoot para lfs
+lfs@lenovolubuntu:~$ cat > /home/lfs/.bash_profile << "EOF"
+> exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash
+> EOF
+
+cat > ~/.bashrc << "EOF"
+set +h
+umask 022
+LFS=/mnt/lfs
+LC_ALL=POSIX
+LFS_TGT=$(uname -m)-lfs-linux-gnu
+PATH=/usr/bin
+if [ ! -L /bin ]; then PATH=/bin:$PATH; fi
+PATH=$LFS/tools/bin:$PATH
+CONFIG_SITE=$LFS/usr/share/config.site
+export LFS LC_ALL LFS_TGT PATH CONFIG_SITE
+EOF
+
+exit   para voltar para hoot 
+sudo mv -v /etc/bash.bashrc /etc/bash.bashrc.NOUSE        para segurança
+ls -la /etc/bash.bashrc*      verificando se funcionou
+
+su - lfs
+cd $LFS
+cd sources
+
+tar xvf binutils-2.45.tar.xz    extrair binutils
+cd binutils-2.45
+mkdir build 
+cd build
+../configure --prefix=$LFS/tools \
+             --with-sysroot=$LFS \
+             --target=$LFS_TGT   \
+             --disable-nls       \
+             --enable-gprofng=no \
+             --disable-werror    \
+             --enable-new-dtags  \
+             --enable-default-hash-style=gnu
+make
+make install
+
+
+
+
+
+
+cd ../..     para voltar para o sources
+
+tar xvf gcc-15.2.0.tar.xz
+cd gcc-15.0.2/
+
+tar xvf ../mpfr-4.2.2.tar.xz 
+mv -v mpfr-4.2.2/ mpfr
+
+tar xvf ../gmp-6.3.0.tar.xz
+mv -v gmp-6.3.0/ gmp
+
+tar xvf ../mpc-1.3.1.tar.gz 
+mv -v mpc-1.3.1/ mpc
+
+sed -e '/m64=/s/lib64/lib/' \
+      -i.orig gcc/config/i386/t-linux64
+
+mkdir -v build
+cd build
+
+../configure                  \
+    --target=$LFS_TGT         \
+    --prefix=$LFS/tools       \
+    --with-glibc-version=2.42 \
+    --with-sysroot=$LFS       \
+    --with-newlib             \
+    --without-headers         \
+    --enable-default-pie      \
+    --enable-default-ssp      \
+    --disable-nls             \
+    --disable-shared          \
+    --disable-multilib        \
+    --disable-threads         \
+    --disable-libatomic       \
+    --disable-libgomp         \
+    --disable-libquadmath     \
+    --disable-libssp          \
+    --disable-libvtv          \
+    --disable-libstdcxx       \
+    --enable-languages=c,c++
+
+echo $? teste, se o resultado for 0 então está tudo ok 
+
+make
+echo $?
+make install
+
+cat /home/lfs/.bashrc
+
+cd ..
+cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
+  `dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include/limits.h
+
+
+cd ..
+tar xvf linux-6.16.1.tar.xz
+cd linux-6.16.1
+ls
+
+make mrproper
+make headers
+
+find usr/include -type f ! -name '*.h' -delete
+cp -rv usr/include $LFS/usr
+
+cd ../  para voltar para o sourcer e extrair o glibc
+tar xvr glibc-2.42.tar.xz
+
+ln -sfv ../lib/ld-linux-x86-64.so.2 $LFS/lib64
+ln -sfv ../lib/ld-linux-x86-64.so.2 $LFS/lib64/ld-lsb-x86-64.so.3
+
+cd glibc-2.42
+patch -Np1 -i ../glibc-2.42-fhs-1.patch
+
+mkdir -v build
+cd       build
+
+echo "rootsbindir=/usr/sbin" > configparms
+
+../configure                             \
+      --prefix=/usr                      \
+      --host=$LFS_TGT                    \
+      --build=$(../scripts/config.guess) \
+      --disable-nscd                     \
+      libc_cv_slibdir=/usr/lib           \
+      --enable-kernel=5.4
+
+make -j1
+echo $?
+
+make DESTDIR=$LFS install
+
+sed '/RTLDLIST=/s@/usr@@g' -i $LFS/usr/bin/ldd
+
+echo 'int main(){}' | $LFS_TGT-gcc -x c - -v -Wl,--verbose &> dummy.log
+readelf -l a.out | grep ': /lib'
+
+[Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]      ESTE TEM QUE SER O RETORNO DO TESTE DE CIMA
+
+grep -E -o "$LFS/lib.*/S?crt[1in].*succeeded" dummy.log
+
+grep -B3 "^ $LFS/usr/include" dummy.log
+
+grep 'SEARCH.*/usr/lib' dummy.log |sed 's|; |\n|g'
+
+grep "/lib.*/libc.so.6 " dummy.log
+
+grep found dummy.log
+
+rm -v a.out dummy.log
+
+
+$LFS/tools/libexec/gcc/$LFS_TGT/15.2.0/install-tools/mkheaders
+ls $LFS/tools/libexec/gcc/$LFS_TGT/15.2.0/install-tools/mkheaders      verificação do comando de cima
+
+cd ../..
+
+rm -rf gcc-15.2.0/
+
+tar xvf gcc-15.2.0.tar.xz
+cd gcc-15.2.0
+mkdir -v build 
+cd build 
+../libstdc++-v3/configure      \
+    --host=$LFS_TGT            \
+    --build=$(../config.guess) \
+    --prefix=/usr              \
+    --disable-multilib         \
+    --disable-nls              \
+    --disable-libstdcxx-pch    \
+    --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/15.2.0
+
+echo $?
+make -j 1
+echo $?
+make DESTDIR=$LFS install
+echo $?
+
+rm -v $LFS/usr/lib/lib{stdc++{,exp,fs},supc++}.la
+
+cd ../..
+
+
+
+
+CAPITULO 6
+
+
+
+
+tar xvf m4-1.4.20.tar.xz
+cd m4-1.4.20/
+./configure --prefix=/usr   \
+            --host=$LFS_TGT \
+            --build=$(build-aux/config.guess)
+make -j1
+echo $?  AQUI FOI ONDE ACONTECEU AQUELE ERRO HORRÍVEL
+
+cd /mnt/lfs/sources
+tar -xf ncurses-6.5-20250809.tgz
+cd ncurses-6.5-20250809
+
+mkdir build
+pushd build
+../configure --prefix=$LFS/tools AWK=gawk
+make -C include
+make -C progs tic
+install progs/tic $LFS/tools/bin
+popd
+
+./configure --prefix=/usr                \
+            --host=$LFS_TGT              \
+            --build=$(./config.guess)    \
+            --mandir=/usr/share/man      \
+            --with-manpage-format=normal \
+            --with-shared                \
+            --without-normal             \
+            --with-cxx-shared            \
+            --without-debug              \
+            --without-ada                \
+            --disable-stripping          \
+            AWK=gawk
+
+make
+echo $?
+make DESTDIR=$LFS install
+ln -sv libncursesw.so $LFS/usr/lib/libncurses.so
+sed -e 's/^#if.*XOPEN.*$/#if 1/' \
+    -i $LFS/usr/include/curses.h
+
+cd ../..
+
+tar xvf bash-5.3.tar.gz 
+cd bash-5.3/
+
+./configure --prefix=/usr                      \
+            --build=$(sh support/config.guess) \
+            --host=$LFS_TGT                    \
+            --without-bash-malloc
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+echo $?
+ln -sv bash $LFS/bin/sh
+ls --color -l $LFS/bin/sh    verificação, tem que apontar para o bash
+
+cd ..
+tar xvf coreutils-9.7.tar.xz
+cd coreutils-9.7/
+
+./configure --prefix=/usr                     \
+            --host=$LFS_TGT                   \
+            --build=$(build-aux/config.guess) \
+            --enable-install-program=hostname \
+            --enable-no-install-program=kill,uptime
+
+echo $?
+make -j1
+echo$?
+make DESTDIR=$LFS install
+echo $?
+mv -v $LFS/usr/bin/chroot              $LFS/usr/sbin
+mkdir -pv $LFS/usr/share/man/man8
+mv -v $LFS/usr/share/man/man1/chroot.1 $LFS/usr/share/man/man8/chroot.8
+sed -i 's/"1"/"8"/'                    $LFS/usr/share/man/man8/chroot.8
+cd ..
+
+tar xvf diffutils-3.12.tar.xz 
+cd diffutils-3.12/
+./configure --prefix=/usr   \
+            --host=$LFS_TGT \
+            gl_cv_func_strcasecmp_works=y \
+            --build=$(./build-aux/config.guess)
+echo$?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+echo$?
+
+cd ../
+
+tar xvf file-5.46.tar.gz 
+echo $?
+cd file-5.46/
+mkdir build
+pushd build
+../configure --disable-bzlib      \
+               --disable-libseccomp \
+               --disable-xzlib      \
+               --disable-zlib
+echo $?
+make
+echo $?
+popd./configure --prefix=/usr --host=$LFS_TGT --build=$(./config.guess)
+echo $?
+make FILE_COMPILE=$(pwd)/build/src/file
+echo $?
+make DESTDIR=$LFS install
+echo $?
+rm -v $LFS/usr/lib/libmagic.la
+
+cd ..
+tar xvf findutils-4.10.0.tar.xz 
+cd findutils-4.10.0/
+./configure --prefix=/usr                   \
+            --localstatedir=/var/lib/locate \
+            --host=$LFS_TGT                 \
+            --build=$(build-aux/config.guess)
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+
+cd ../
+tar xvf gawk-5.3.2.tar.xz
+cd gawk-5.3.2/
+sed -i 's/extras//' Makefile.in
+./configure --prefix=/usr   \
+            --host=$LFS_TGT \
+            --build=$(build-aux/config.guess)
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+echo $?
+
+cd ../
+
+tar xvf grep-3.12.tar.xz 
+cd grep-3.12/
+./configure --prefix=/usr   \
+            --host=$LFS_TGT \
+            --build=$(./build-aux/config.guess)
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+echo $?
+
+cd ../
+xvf gzip-1.14.tar.xz 
+cd gzip-1.14/
+./configure --prefix=/usr --host=$LFS_TGT
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+echo $?
+
+cd ../
+tar xvf make-4.4.1.tar.gz 
+cd make-4.4.1/
+./configure --prefix=/usr   \
+            --host=$LFS_TGT \
+            --build=$(build-aux/config.guess)
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+echo $?
+
+cd ../
+tar xvf patch-2.8.tar.xz 
+cd patch-2.8/
+./configure --prefix=/usr   \
+            --host=$LFS_TGT \
+            --build=$(build-aux/config.guess)
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+echo $?
+
+cd ../
+tar xvf sed-4.9.tar.xz 
+cd sed-4.9/
+./configure --prefix=/usr   \
+            --host=$LFS_TGT \
+            --build=$(./build-aux/config.guess)
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+echo $?
+
+cd ../
+tar xvf tar-1.35.tar.xz 
+cd tar-1.35/
+./configure --prefix=/usr   \
+            --host=$LFS_TGT \
+            --build=$(build-aux/config.guess)
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+
+cd ../ 
+tar xvf xz-5.8.1.tar.xz 
+cd xz-5.8.1/
+./configure --prefix=/usr                     \
+            --host=$LFS_TGT                   \
+            --build=$(build-aux/config.guess) \
+            --disable-static                  \
+            --docdir=/usr/share/doc/xz-5.8.1
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+rm -v $LFS/usr/lib/liblzma.la
+
+
+      PASSAGEM 2 BINUTILS
+cd ../
+rm -r binutils-2.45
+tar xvf binutils-2.45.tar.xz 
+cd binutils-2.45/
+sed '6031s/$add_dir//' -i ltmain.sh
+mkdir -v build 
+cd build
+../configure                   \
+    --prefix=/usr              \
+    --build=$(../config.guess) \
+    --host=$LFS_TGT            \
+    --disable-nls              \
+    --enable-shared            \
+    --enable-gprofng=no        \
+    --disable-werror           \
+    --enable-64-bit-bfd        \
+    --enable-new-dtags         \
+    --enable-default-hash-style=gnu
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+rm -v $LFS/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes,sframe}.{a,la}
+
+
+APARENTEMENTE ESSA É A PASSAGEM MAIS COMPLICADA
+SE HOUVER UM ERRO DAQUI PARA FRENTE É CULPA DO GCC
+cd ../..
+rm -r gcc-15.2.0
+tar xvf gcc-15.2.0.tar.xz
+cd gcc-15.2.0/
+
+tar -xf ../mpfr-4.2.2.tar.xz
+mv -v mpfr-4.2.2 mpfr
+tar -xf ../gmp-6.3.0.tar.xz
+mv -v gmp-6.3.0 gmp
+tar -xf ../mpc-1.3.1.tar.gz
+mv -v mpc-1.3.1 mpc
+
+case $(uname -m) in
+  x86_64)
+    sed -e '/m64=/s/lib64/lib/' \
+        -i.orig gcc/config/i386/t-linux64
+  ;;
+esac
+
+sed '/thread_header =/s/@.*@/gthr-posix.h/' \
+    -i libgcc/Makefile.in libstdc++-v3/include/Makefile.in
+mkdir -v build
+cd build
+
+../configure                   \
+    --build=$(../config.guess) \
+    --host=$LFS_TGT            \
+    --target=$LFS_TGT          \
+    --prefix=/usr              \
+    --with-build-sysroot=$LFS  \
+    --enable-default-pie       \
+    --enable-default-ssp       \
+    --disable-nls              \
+    --disable-multilib         \
+    --disable-libatomic        \
+    --disable-libgomp          \
+    --disable-libquadmath      \
+    --disable-libsanitizer     \
+    --disable-libssp           \
+    --disable-libvtv           \
+    --enable-languages=c,c++   \
+    LDFLAGS_FOR_TARGET=-L$PWD/$LFS_TGT/libgcc
+echo $?
+make -j1
+echo $?
+make DESTDIR=$LFS install
+echo $?
+ln -sv gcc $LFS/usr/bin/cc
+
+
+CAPITULO 7
+
+exit     agora é necessário sair do usuário lfs e voltar para o root
+echo $LFS
+chown --from lfs -R root:root $LFS/{usr,var,etc,tools}
+case $(uname -m) in
+  x86_64) chown --from lfs -R root:root $LFS/lib64 ;;
+esac
+
+mkdir -pv $LFS/{dev,proc,sys,run}
+mount -vt devpts devpts -o gid=5,mode=0620 $LFS/dev/pts
+mount -vt proc proc $LFS/proc
+mount -vt sysfs sysfs $LFS/sys
+mount -vt tmpfs tmpfs $LFS/run
+
+if [ -h $LFS/dev/shm ]; then
+  install -v -d -m 1777 $LFS$(realpath /dev/shm)
+else
+  mount -vt tmpfs -o nosuid,nodev tmpfs $LFS/dev/shm
+fi
+
+chroot "$LFS" /usr/bin/env -i   \
+    HOME=/root                  \
+    TERM="$TERM"                \
+    PS1='(lfs chroot) \u:\w\$ ' \
+    PATH=/usr/bin:/usr/sbin     \
+    MAKEFLAGS="-j$(nproc)"      \
+    TESTSUITEFLAGS="-j$(nproc)" \
+    /bin/bash --login                PARABÉNS, COM ESSE COMANDO ESTAMOS "DENTRO"
+
+mkdir -pv /{boot,home,mnt,opt,srv}
+
+mkdir -pv /etc/{opt,sysconfig}
+mkdir -pv /lib/firmware
+mkdir -pv /media/{floppy,cdrom}
+mkdir -pv /usr/{,local/}{include,src}
+mkdir -pv /usr/lib/locale
+mkdir -pv /usr/local/{bin,lib,sbin}
+mkdir -pv /usr/{,local/}share/{color,dict,doc,info,locale,man}
+mkdir -pv /usr/{,local/}share/{misc,terminfo,zoneinfo}
+mkdir -pv /usr/{,local/}share/man/man{1..8}
+mkdir -pv /var/{cache,local,log,mail,opt,spool}
+mkdir -pv /var/lib/{color,misc,locate}
+
+ln -sfv /run /var/run
+ln -sfv /run/lock /var/lock
+
+install -dv -m 0750 /root
+install -dv -m 1777 /tmp /var/tmp
+
+rm -rf /usr/lib64     ESSE COMANDO NÃO FOI EXECUTADO MAS TALVEZ DEVESSE TER SIDO, DECOBRIREMOS
+
+ln -sv /proc/self/mounts /etc/mtab
+
+cat > /etc/hosts << EOF
+127.0.0.1  localhost $(hostname)
+::1        localhost
+EOF
+
+cat > /etc/passwd << "EOF"
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/dev/null:/usr/bin/false
+daemon:x:6:6:Daemon User:/dev/null:/usr/bin/false
+messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/usr/bin/false
+uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/usr/bin/false
+nobody:x:65534:65534:Unprivileged User:/dev/null:/usr/bin/false
+EOF
+
+cat > /etc/group << "EOF"
+root:x:0:
+bin:x:1:daemon
+sys:x:2:
+kmem:x:3:
+tape:x:4:
+tty:x:5:
+daemon:x:6:
+floppy:x:7:
+disk:x:8:
+lp:x:9:
+dialout:x:10:
+audio:x:11:
+video:x:12:
+utmp:x:13:
+cdrom:x:15:
+adm:x:16:
+messagebus:x:18:
+input:x:24:
+mail:x:34:
+kvm:x:61:
+uuidd:x:80:
+wheel:x:97:
+users:x:999:
+nogroup:x:65534:
+EOF
+
+echo "tester:x:101:101::/home/tester:/bin/bash" >> /etc/passwd
+echo "tester:x:101:" >> /etc/group
+install -o tester -d /home/tester
+
+exec /usr/bin/bash --login
+
+touch /var/log/{btmp,lastlog,faillog,wtmp}
+chgrp -v utmp /var/log/lastlog
+chmod -v 664  /var/log/lastlog
+chmod -v 600  /var/log/btmp
+
+DICA EXTRA-- MONTAR CHROOT PARA CASO O COMPUTADOR DESLIGUE    SE O COMPUTADOR DESLIGAR VOCÊ VOLTA AQUI AULA 23
+
+cd sources
+tar xvf gettext-0.26.tar.xz 
+cd gettext-0.26/
+./configure --disable-shared
+echo $?
+make -j1 
+echo $?
+cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} /usr/bin
+
+cd ../
+tar xvf bison-3.8.2.tar.xz 
+cd bison-3.8.2/
+./configure --prefix=/usr \
+            --docdir=/usr/share/doc/bison-3.8.2
+echo $?
+make -j1
+echo $?
+make install
+
+cd ../
+tar xvf perl-5.42.0.tar.xz 
+cd perl-5.42.0/
+sh Configure -des                                         \
+             -D prefix=/usr                               \
+             -D vendorprefix=/usr                         \
+             -D useshrplib                                \
+             -D privlib=/usr/lib/perl5/5.42/core_perl     \
+             -D archlib=/usr/lib/perl5/5.42/core_perl     \
+             -D sitelib=/usr/lib/perl5/5.42/site_perl     \
+             -D sitearch=/usr/lib/perl5/5.42/site_perl    \
+             -D vendorlib=/usr/lib/perl5/5.42/vendor_perl \
+             -D vendorarch=/usr/lib/perl5/5.42/vendor_perl
+echo $?
+make -j1
+echo $?
+make install
+
+cd ../
+tar xvf Python-3.13.7.tar.xz       É COM P MAIUSCULO 
+cd Python-3.13.7/
+./configure --prefix=/usr       \
+            --enable-shared     \
+            --without-ensurepip \
+            --without-static-libpython
+echo $?
+make -j1     PODE DAR FATAL ERROR MAS O IMPORTANTE É O PRÓXIMO ECHO SER IGUAL A ZERO COMO TEM SIDO EM TODO O PROCESSO
+echo $?
+make install
+echo $?
+
+cd ../
+tar xvf texinfo-7.2.tar.xz 
+cd texinfo-7.2/
+./configure --prefix=/usr
+echo $?
+make -j1
+echo $?
+make install
+echo $?
+
+cd ../
+tar xvf util-linux-2.41.1.tar.xz 
+cd util-linux-2.41.1/
+mkdir -pv /var/lib/hwclock
+./configure --libdir=/usr/lib     \
+            --runstatedir=/run    \
+            --disable-chfn-chsh   \
+            --disable-login       \
+            --disable-nologin     \
+            --disable-su          \
+            --disable-setpriv     \
+            --disable-runuser     \
+            --disable-pylibmount  \
+            --disable-static      \
+            --disable-liblastlog2 \
+            --without-python      \
+            ADJTIME_PATH=/var/lib/hwclock/adjtime \
+            --docdir=/usr/share/doc/util-linux-2.41.1
+echo $?
+make -j1
+echo $?
+make install $?
+echo $?
+
+cd ../..
+rm -rf /usr/share/{info,man,doc}/*
+find /usr/{lib,libexec} -name \*.la -delete
+rm -rf /tools
+exit     AGORA OS PRÓXIMOS COMANDOS TEM QUE SER EXECUTADOS COMO ROOT DO SISTEMA HOST
+
+mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
+umount $LFS/dev/pts
+umount $LFS/{sys,proc,run,dev}
+
+cd $LFS
+tar -cJpf $HOME/lfs-temp-tools-12.4.tar.xz .     CRIAÇÃO DO BACKUP
+
+
+
+
+
+
+cd $LFS
+rm -rf ./*
+tar -xpf $HOME/lfs-temp-tools-12.4.tar.xz       ESSES TRÊS COMANDO NÃO FORAM EXECUTADOS, SÓ SERA EXECUTADO CASO PRECISE DO BACKUP
+
+
+
+CAPITULO 8
+
+
+# 1. Montar sistemas virtuais       PARA VOLTAR AO CHROOT QUANDO O BACKUP TERMINAR 
+export LFS=/mnt/lfs
+
+mount -v --bind /dev $LFS/dev
+mount -vt devpts devpts -o gid=5,mode=0620 $LFS/dev/pts
+mount -vt proc proc $LFS/proc
+mount -vt sysfs sysfs $LFS/sys  
+mount -vt tmpfs tmpfs $LFS/run
+
+mkdir -pv $LFS/dev/pts       SÓ EXECUTE ESTE COMANDO SE O DIRETÓRIO $LFS/dev/pts NÃO EXISTIR
+
+# 2. Entrar no chroot
+chroot "$LFS" /usr/bin/env -i \
+    HOME=/root \
+    TERM="$TERM" \
+    PS1='(lfs chroot) \u:\w\$ ' \
+    PATH=/usr/bin:/usr/sbin \
+    /bin/bash --login
+
+cd sources
+tar xvf man-pages-6.15.tar.xz 
+cd man-pages-6.15/
+rm -v man3/crypt*
+make -R GIT=false prefix=/usr install
+echo $?
+
+cd ../
+tar xvf iana-etc-20250807.tar.gz 
+cd iana-etc-20250807/
+cp services protocols /etc
+
+cd ../
+rm -r glibc-2.42/
+tar xvf glibc-2.42.tar.xz 
+cd glibc-2.42/
+patch -Np1 -i ../glibc-2.42-fhs-1.patch
+
+sed -e '/unistd.h/i #include <string.h>' \
+    -e '/libc_rwlock_init/c\
+  __libc_rwlock_define_initialized (, reset_lock);\
+  memcpy (&lock, &reset_lock, sizeof (lock));' \
+    -i stdlib/abort.c
+
+mkdir -v build
+cd build
+
+echo "rootsbindir=/usr/sbin" > configparms
+../configure --prefix=/usr                   \
+             --disable-werror                \
+             --disable-nscd                  \
+             libc_cv_slibdir=/usr/lib        \
+             --enable-stack-protector=strong \
+             --enable-kernel=5.4
+echo $?
+make -j1       AQUI HOUVE UM ERRO QUE VAI SER DOCUMENTADO
+echo $?
+make -j1 check
+echo $?     HOUVERAM DOIS ERROS RELACIONADOS AO MAKEFILE
+touch /etc/ld.so.conf
+sed '/test-installation/s@$(PERL)@echo not running@' -i ../Makefile
+make install
+echo $?
+sed '/RTLDLIST=/s@/usr@@g' -i /usr/bin/ldd
+
+localedef -i C -f UTF-8 C.UTF-8
+localedef -i cs_CZ -f UTF-8 cs_CZ.UTF-8
+localedef -i de_DE -f ISO-8859-1 de_DE
+localedef -i de_DE@euro -f ISO-8859-15 de_DE@euro
+localedef -i de_DE -f UTF-8 de_DE.UTF-8
+localedef -i el_GR -f ISO-8859-7 el_GR
+localedef -i en_GB -f ISO-8859-1 en_GB
+localedef -i en_GB -f UTF-8 en_GB.UTF-8
+localedef -i en_HK -f ISO-8859-1 en_HK
+localedef -i en_PH -f ISO-8859-1 en_PH
+localedef -i en_US -f ISO-8859-1 en_US
+localedef -i en_US -f UTF-8 en_US.UTF-8
+localedef -i es_ES -f ISO-8859-15 es_ES@euro
+localedef -i es_MX -f ISO-8859-1 es_MX
+localedef -i fa_IR -f UTF-8 fa_IR
+localedef -i fr_FR -f ISO-8859-1 fr_FR
+localedef -i fr_FR@euro -f ISO-8859-15 fr_FR@euro
+localedef -i fr_FR -f UTF-8 fr_FR.UTF-8
+localedef -i is_IS -f ISO-8859-1 is_IS
+localedef -i is_IS -f UTF-8 is_IS.UTF-8
+localedef -i it_IT -f ISO-8859-1 it_IT
+localedef -i it_IT -f ISO-8859-15 it_IT@euro
+localedef -i it_IT -f UTF-8 it_IT.UTF-8
+localedef -i ja_JP -f EUC-JP ja_JP
+localedef -i ja_JP -f UTF-8 ja_JP.UTF-8
+localedef -i nl_NL@euro -f ISO-8859-15 nl_NL@euro
+localedef -i ru_RU -f KOI8-R ru_RU.KOI8-R
+localedef -i ru_RU -f UTF-8 ru_RU.UTF-8
+localedef -i se_NO -f UTF-8 se_NO.UTF-8
+localedef -i ta_IN -f UTF-8 ta_IN.UTF-8
+localedef -i tr_TR -f UTF-8 tr_TR.UTF-8
+localedef -i zh_CN -f GB18030 zh_CN.GB18030
+localedef -i zh_HK -f BIG5-HKSCS zh_HK.BIG5-HKSCS
+localedef -i zh_TW -f UTF-8 zh_TW.UTF-8
+
+localedef -i pt_BR -f UTF-8 pt_BR.UTF-8
+
+locale -a    ver os instalados 
+
+cat > /etc/nsswitch.conf << "EOF"
+# Begin /etc/nsswitch.conf
+
+passwd: files
+group: files
+shadow: files
+
+hosts: files dns
+networks: files
+
+protocols: files
+services: files
+ethers: files
+rpc: files
+
+# End /etc/nsswitch.conf
+EOF
+
+tar -xf ../../tzdata2025b.tar.gz
+
+ZONEINFO=/usr/share/zoneinfo
+mkdir -pv $ZONEINFO/{posix,right}
+
+for tz in etcetera southamerica northamerica europe africa antarctica  \
+          asia australasia backward; do
+    zic -L /dev/null   -d $ZONEINFO       ${tz}
+    zic -L /dev/null   -d $ZONEINFO/posix ${tz}
+    zic -L leapseconds -d $ZONEINFO/right ${tz}
+done
+
+cp -v zone.tab zone1970.tab iso3166.tab $ZONEINFO
+zic -d $ZONEINFO -p America/New_York
+unset ZONEINFO tz
+
+tzselect
+
+ln -sfv /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
+
+cat >> /etc/ld.so.conf << "EOF"
+# Add an include directory
+include /etc/ld.so.conf.d/*.conf
+
+EOF
+
+mkdir -pv /etc/ld.so.conf.d
+
+cd ../..
+tar xvf zlib-1.3.1.tar.gz 
+cd zlib-1.3.1/
+./configure --prefix=/usr
+echo $?
+make
+echo $?
+make check
+echo $?
+make install
+rm -fv /usr/lib/libz.a
+
+cd ../
+tar xvf bzip2-1.0.8.tar.gz
+cd bzip2-1.0.8/
+patch -Np1 -i ../bzip2-1.0.8-install_docs-1.patch
+sed -i 's@\(ln -s -f \)$(PREFIX)/bin/@\1@' Makefile
+sed -i "s@(PREFIX)/man@(PREFIX)/share/man@g" Makefile
+make -f Makefile-libbz2_so
+make clean
+make -j1
+echo $?
+make PREFIX=/usr install
+echo $?
+cp -av libbz2.so.* /usr/lib
+ln -sv libbz2.so.1.0.8 /usr/lib/libbz2.so
+
+cp -v bzip2-shared /usr/bin/bzip2
+for i in /usr/bin/{bzcat,bunzip2}; do
+  ln -sfv bzip2 $i
+done
+rm -fv /usr/lib/libbz2.a
+
+cd ../
+tar xvf xz-5.8.1.tar.xz 
+cd xz-5.8.1/
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/xz-5.8.1
+echo $?
+make -j1
+echo $?
+make -j1 check
+echo $?
+make install
+
+cd ../
+tar xvf lz4-1.10.0.tar.gz 
+cd lz4-1.10.0/ 
+make BUILD_STATIC=no PREFIX=/usr
+echo $?
+make -j1 check
+echo $?
+make BUILD_STATIC=no PREFIX=/usr install
+
+cd ../
+tar xvf zstd-1.5.7.tar.gz 
+cd zstd-1.5.7/
+make prefix=/usr
+echo $?
+make -j1 check
+echo $? 
+make prefix=/usr install
+rm -v /usr/lib/libzstd.a
+
+cd ../
+rm -rf file-5.46/
+tar xvf file-5.46.tar.gz 
+cd file-5.46/
+./configure --prefix=/usr
+echo $?
+make -j1 
+echo$?
+make -j1 check
+echo $?
+make install 
+
+cd ../
+tar xvf readline-8.3.tar.gz 
+cd readline-8.3/
+sed -i '/MV.*old/d' Makefile.in
+sed -i '/{OLDSUFF}/c:' support/shlib-install
+sed -i 's/-Wl,-rpath,[^ ]*//' support/shobj-conf
+./configure --prefix=/usr    \
+            --disable-static \
+            --with-curses    \
+            --docdir=/usr/share/doc/readline-8.3
+echo $?
+make SHLIB_LIBS="-lncursesw"       aguardando esse
+echo $?
+make install
+install -v -m644 doc/*.{ps,pdf,html,dvi} /usr/share/doc/readline-8.3
+
+cd ../
+rm -rf m4-1.4.20/
+tar xvf m4-1.4.20.tar.xz 
+cd m4-1.4.20/
+./configure --prefix=/usr
+echo $?
+make -j1
+echo $?
+make -j1 check    aguardando esse
+echo $?
+make install
+
