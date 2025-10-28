@@ -1126,7 +1126,7 @@ make -j1 check
 echo $?
 make install
 
-cd ../     tudo feito
+cd ../
 tar xvf bc-7.0.3.tar.xz 
 cd bc-7.0.3/
 CC='gcc -std=c99' ./configure --prefix=/usr -G -O3 -r     aguardando esse
@@ -1135,3 +1135,22 @@ make -j1
 echo $?
 make test
 make install
+echo $?
+
+cd ../
+tar xvf flex(completar com tab)
+cd flex(completar com tab)
+./configure --prefix=/usr \
+            --docdir=/usr/share/doc/flex-2.6.4 \
+            --disable-static
+echo $?
+make -j1
+echo $?
+make -j1 check
+echo $?
+make install
+
+ln -sv flex   /usr/bin/lex
+ln -sv flex.1 /usr/share/man/man1/lex.1
+
+cd ../
