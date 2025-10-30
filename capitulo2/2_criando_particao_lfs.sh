@@ -16,7 +16,7 @@ sudo mkfs.ext4 -v /dev/sda3
 # Define variável de ambiente LFS apontando para o diretório de montagem
 export LFS=/mnt/lfs
 
-# Adiciona variável LFS permanentemente ao .bashrc do root
+# Adicionar variável LFS permanentemente ao .bashrc do root
 sudo nano /root/.bashrc
 
 # Verifica se a variável foi definida corretamente
@@ -36,5 +36,5 @@ ls /mnt/
 sudo mount -v /dev/sda3 $LFS
 
 # Configura montagem automática no boot editando fstab
-nano /etc/fstab
+sudo nano /etc/fstab
 # Adicionar: /dev/sda3  /mnt/lfs  ext4  defaults  1 1

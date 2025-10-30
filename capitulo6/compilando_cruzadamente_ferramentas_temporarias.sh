@@ -15,6 +15,7 @@ cd m4-1.4.20/
             --build=$(build-aux/config.guess)
 make -j1
 echo $?  # Verificação crítica - deve ser 0
+make DESTDIR=$LFS install
 
 
 #           NCURSES

@@ -6,7 +6,7 @@
 sudo mkdir -pv etc var
 sudo mkdir -pv usr/
 
-# Cria subdiretórios dentro de usr/
+# Criar subdiretórios dentro de usr/
 sudo mkdir -pv bin/
 sudo mkdir -pv lib/
 sudo mkdir -pv sbin/
