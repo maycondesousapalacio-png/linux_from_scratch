@@ -1,9 +1,7 @@
-## DOCUMENTAÇÃO DO ERRO: "unknown type name 'GNU'" - GLIBC LFS
 
+## Correção do Erro "unknown type name 'GNU'" na Compilação do Glibc
 
-# Correção do Erro "unknown type name 'GNU'" na Compilação do Glibc
-
-## Descrição do Erro
+### Descrição do Erro
 Durante a compilação do Glibc no LFS (Linux From Scratch), ocorreu o seguinte erro:
 
 /dev/null:1:8: error: unknown type name 'GNU'
@@ -12,24 +10,26 @@ Durante a compilação do Glibc no LFS (Linux From Scratch), ocorreu o seguinte 
 make[2]: *** [Makefile:226: /sources/glibc-2.42/build/csu/Mcrt1.o] Error 1
 
 
-## Causa do Problema
+### Causa do Problema
 - **Variável PATH incorreta** no ambiente chroot
 - **Falta do diretório `/tools/bin`** no PATH
 - **Binários do sistema host** sendo utilizados ao invés das ferramentas temporárias do LFS
 
-## Solução Aplicada
 
-### 1. Verificação do Ambiente
+### Solução Aplicada
+
+
+#### 1. Verificação do Ambiente
 ```bash
 echo $PATH
 # Retornou: /usr/bin:/usr/sbin (INCORRETO)
 
 ```
-### 2. Correção da Variável PATH
+#### 2. Correção da Variável PATH
 ```bash
 export PATH=/tools/bin:/bin:/usr/bin
 ```
-### 3. Limpeza do Build Anterior Contaminado
+#### 3. Limpeza do Build Anterior Contaminado
 ```bash
 # Navegar para o diretório do glibc
 cd /sources/glibc-2.42
@@ -41,11 +41,11 @@ rm -rf build
 mkdir build
 cd build
 ```
-### 4. Criação do Arquivo configparms
+#### 4. Criação do Arquivo configparms
 ```bash
 echo "rootsbindir=/usr/sbin" > configparms
 ```
-### Comando de Verificação Final
+#### Comando de Verificação Final
 ```bash
 # Verificar se o PATH está correto
 echo $PATH
@@ -56,25 +56,20 @@ which gcc
 which make
 ```
 
-## Lições Aprendidas
+### Lições Aprendidas
 
-Sempre verificar o PATH ao entrar no chroot
+- Sempre verificar o PATH ao entrar no chroot
+- Builds contaminados devem ser completamente removidos - não reutilizar
+- Recriar o diretório build após corrigir variáveis de ambiente
+- Sempre criar configparms antes do configure do Glibc
 
-Builds contaminados devem ser completamente removidos - não reutilizar
+### Prevenção Futura
 
-Recriar o diretório build após corrigir variáveis de ambiente
+- Usar script automatizado para entrar no chroot
+- Verificar ambiente antes de iniciar compilações
+- Remover e recriar builds quando houver mudanças no ambiente
 
-Sempre criar configparms antes do configure do Glibc
-
-## Prevenção Futura
-
-Usar script automatizado para entrar no chroot
-
-Verificar ambiente antes de iniciar compilações
-
-Remover e recriar builds quando houver mudanças no ambiente
-
-## Arquivos Envolvidos
+### Arquivos Envolvidos
 /sources/glibc-2.42/build/ (diretório removido e recriado)
 
 /sources/glibc-2.42/build/configparms (criado novamente)
@@ -83,9 +78,9 @@ Variáveis de ambiente: PATH
 
 
 
-# Como Entrar Corretamente no Ambiente Chroot LFS
+## Como Entrar Corretamente no Ambiente Chroot LFS
 
-## Comando Correto
+### Comando Correto
 ```bash
 export LFS=/mnt/lfs
 cd $LFS
@@ -110,16 +105,16 @@ export PATH=/tools/bin:/bin:/usr/bin
 ```
 
 
-# Verificação do Ambiente
+## Verificação do Ambiente
 
-## Sempre verificar após entrar no chroot:
+### Sempre verificar após entrar no chroot:
 ```bash
 echo $PATH
 # Deve ser: /tools/bin:/bin:/usr/bin
 which gcc
 # Deve apontar para: /tools/bin/gcc
 ```
-## IMPORTANTE: Se Já Teve Problemas de Compilação
+### IMPORTANTE: Se Já Teve Problemas de Compilação
 ```bash
 # Se houver erros de compilação relacionados a ambiente:
 # 1. Corrigir o PATH

@@ -27,10 +27,37 @@ O projeto está dividido em várias fases conforme o livro LFS:
 
 ---
 
+## 💻 Especificações da Máquina Utilizada
+
+A compilação do LFS foi feita em um computador com recursos bastante limitados, o que tornou o processo desafiador e educativo.  
+As especificações do hardware são as seguintes:
+
+| Componente | Especificação |
+|-------------|----------------|
+| **Processador** | AMD C C-60 Dual Core, 1 GHz |
+| **Núcleos de CPU** | 2 |
+| **Memória RAM** | 4 GB DDR3-SDRAM |
+| **Armazenamento** | HDD 500 GB |
+| **Placa Gráfica** | AMD Radeon HD 6290 |
+| **Tela** | 14" (1366x768) LED, 16:9 |
+| **Rede** | Ethernet LAN 10/100 Mbit/s |
+| **Drive óptico** | DVD-RW |
+
+---
+
+## 🧰 Sistema Host
+
+- **Distribuição base:** Lubuntu (última versão estável no momento da instalação)  
+- **Motivo da escolha:** O Lubuntu foi escolhido por ser uma distribuição **leve e eficiente**, ideal para hardware com capacidade de processamento limitada.  
+- **Ambiente gráfico:** LXQt  
+- **Kernel do host:** Versão incluída na release estável do Lubuntu  
+
+---
+
 ## 🧰 Ferramentas e Tecnologias Utilizadas
 
-- **Sistema Host:** Ubuntu 24.04 LTS (ou similar)
-- **Kernel:** Linux 6.x
+- **Sistema Host:** Lubuntu 24.04 LTS Released
+- **Kernel:** Linux 6.8.0
 - **Toolchain:** Binutils, GCC, Glibc
 - **Gerenciamento de Pacotes:** Manual (sem apt ou yum)
 - **Filesystem:** ext4
@@ -38,6 +65,19 @@ O projeto está dividido em várias fases conforme o livro LFS:
 - **Ambiente:** Chroot isolado
 
 ---
+
+## ⚙️ Decisões Técnicas Importantes
+
+- Para a compilação, foi utilizado o comando:
+
+  ```bash
+  make -j1
+  ```
+Essa configuração limitou o processo de compilação a apenas um núcleo do processador, priorizando estabilidade e reduzindo o risco de falhas em um sistema com pouca capacidade de processamento.
+
+A partir do Capítulo 8 (na instalação do GCC), os testes de compilação descritos no livro não foram executados, devido ao tempo excessivo que eles demandavam na máquina utilizada.
+
+O restante do processo (compilação, instalação e configuração) foi seguido conforme as instruções oficiais do livro LFS, com pequenas pausas para evitar superaquecimento do processador.
 
 ## 💡 Pré-requisitos
 
@@ -55,3 +95,36 @@ Antes de começar:
 1. **Baixe o livro oficial LFS:**
    ```bash
    wget https://www.linuxfromscratch.org/lfs/downloads/stable/LFS-BOOK.html
+
+---
+
+## 🧠 Aprendizados e Desafios
+
+- Compreensão detalhada do funcionamento interno de um sistema Linux.
+- Experiência com compilação manual de pacotes e gerenciamento de dependências.
+- Otimização de recursos em hardware limitado.
+- Identificação de gargalos de performance durante a construção.
+- Prática com chroot, toolchain cross-compilation, e configuração de kernel.
+
+---
+
+## 🧾 Referências
+
+- 📖 Linux From Scratch – Livro Oficial
+- 🔧 Beyond Linux From Scratch (BLFS)
+- 🧰 LFS Hints
+- 💬 Fórum da Comunidade LFS
+
+---
+
+## 📜 Licença
+
+Este projeto segue a licença MIT — sinta-se livre para usar, modificar e compartilhar, desde que mantenha os créditos.
+
+---
+
+✨ Autor
+
+Maycon
+Estudante de Ciência da Computação
+📧 Contato: maycondesousapalacio@gmail.com
