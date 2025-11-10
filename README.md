@@ -1,18 +1,18 @@
-# 🐧 Linux From Scratch (LFS)
+#  Linux From Scratch (LFS)
 
 Este projeto documenta a construção de um sistema Linux completamente do zero, seguindo o livro **[Linux From Scratch (LFS)](https://www.linuxfromscratch.org/)**.  
 O objetivo é compreender em profundidade como um sistema Linux funciona, desde a compilação do kernel até a criação de ferramentas básicas do sistema.
 
 ---
 
-## 📘 Objetivo do Projeto
+##  Objetivo do Projeto
 
 O **Linux From Scratch** (LFS) é um projeto educacional que ensina como construir um sistema Linux completamente funcional a partir do código-fonte.  
 Ao invés de usar uma distribuição pronta como Ubuntu ou Fedora, o usuário compila e configura **cada componente** — incluindo o compilador, o kernel e as bibliotecas fundamentais.
 
 ---
 
-## ⚙️ Estrutura do Projeto
+##  Estrutura do Projeto
 
 O projeto está dividido em várias fases conforme o livro LFS:
 
@@ -27,7 +27,7 @@ O projeto está dividido em várias fases conforme o livro LFS:
 
 ---
 
-## 💻 Especificações da Máquina Utilizada
+##  Especificações da Máquina Utilizada
 
 A compilação do LFS foi feita em um computador com recursos bastante limitados, o que tornou o processo desafiador e educativo.  
 As especificações do hardware são as seguintes:
@@ -45,7 +45,7 @@ As especificações do hardware são as seguintes:
 
 ---
 
-## 🧰 Sistema Host
+##  Sistema Host
 
 - **Distribuição base:** Lubuntu (última versão estável no momento da instalação)  
 - **Motivo da escolha:** O Lubuntu foi escolhido por ser uma distribuição **leve e eficiente**, ideal para hardware com capacidade de processamento limitada.  
@@ -54,7 +54,7 @@ As especificações do hardware são as seguintes:
 
 ---
 
-## 🧰 Ferramentas e Tecnologias Utilizadas
+##  Ferramentas e Tecnologias Utilizadas
 
 - **Sistema Host:** Lubuntu 24.04 LTS Released
 - **Kernel compilado:** Linux 6.16.1
@@ -66,7 +66,7 @@ As especificações do hardware são as seguintes:
 
 ---
 
-## ⚙️ Decisões Técnicas Importantes
+##  Decisões Técnicas Importantes
 
 - Para a compilação, foi utilizado o comando:
 
@@ -81,7 +81,7 @@ O restante do processo (compilação, instalação e configuração) foi seguido
 
 ---
 
-## 💡 Pré-requisitos
+##  Pré-requisitos
 
 Antes de começar:
 
@@ -92,7 +92,7 @@ Antes de começar:
 
 ---
 
-## 🚀 Como Reproduzir
+##  Como Reproduzir
 
 1. **Baixe o livro oficial LFS:**
    ```bash
@@ -100,7 +100,7 @@ Antes de começar:
 
 ---
 
-## 🏁 Resultado Final
+##  Resultado Final
 
 O LFS Pitbulls 12.4 foi compilado e inicializado com sucesso através do GRUB do Lubuntu.
 Durante o boot, o kernel 6.16.1 carrega corretamente, monta as partições conforme o fstab e inicia o sistema base sem erros críticos.
@@ -110,7 +110,7 @@ Data de finalização do projeto 08/11/2025
 
 ---
 
-## 🧠 Aprendizados e Desafios
+##  Aprendizados e Desafios
 
 - Compreensão detalhada do funcionamento interno de um sistema Linux.
 - Experiência com compilação manual de pacotes e gerenciamento de dependências.
@@ -121,23 +121,27 @@ Data de finalização do projeto 08/11/2025
 
 ---
 
-## 🧾 Referências
+##  Referências
 
-- 📖 Linux From Scratch – Livro Oficial
-- 🔧 Beyond Linux From Scratch (BLFS)
-- 🧰 LFS Hints
-- 💬 Fórum da Comunidade LFS
+-  Linux From Scratch – Livro Oficial
+-  Beyond Linux From Scratch (BLFS)
+-  LFS Hints
+-  Fórum da Comunidade LFS
 
 ---
 
-## 📜 Licença
+## Licença
 
 Este projeto segue a licença MIT — sinta-se livre para usar, modificar e compartilhar, desde que mantenha os créditos.
 
 ---
 
-✨ Autor
+Autores
 
 Maycon de Sousa Palácio
-Estudante de Ciências da Computação
+Afonso Rafael Evangelista da Silva
+Ruan Lopes Dourado
+Filipe Augusto Izidro de Melo
+André Luidhy Menezes Barbosa
+Estudantes de Ciências da Computação
 📧 Contato: maycondesousapalacio@gmail.com
