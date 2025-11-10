@@ -57,7 +57,7 @@ As especificações do hardware são as seguintes:
 ## 🧰 Ferramentas e Tecnologias Utilizadas
 
 - **Sistema Host:** Lubuntu 24.04 LTS Released
-- **Kernel:** Linux 6.8.0
+- **Kernel compilado:** Linux 6.16.1
 - **Toolchain:** Binutils, GCC, Glibc
 - **Gerenciamento de Pacotes:** Manual (sem apt ou yum)
 - **Filesystem:** ext4
@@ -79,6 +79,8 @@ A partir do Capítulo 8 (na instalação do GCC), os testes de compilação desc
 
 O restante do processo (compilação, instalação e configuração) foi seguido conforme as instruções oficiais do livro LFS, com pequenas pausas para evitar superaquecimento do processador.
 
+---
+
 ## 💡 Pré-requisitos
 
 Antes de começar:
@@ -86,7 +88,7 @@ Antes de começar:
 - Conhecimentos básicos de **Linux e linha de comando**
 - No mínimo **8 GB de RAM** e **50 GB de espaço livre**
 - Um sistema Linux funcionando (para servir de host)
-- A versão do livro LFS (recomenda-se a mais recente, ex: 12.2)
+- A versão do livro LFS (recomenda-se a mais recente, ex: 12.4)
 
 ---
 
@@ -98,12 +100,23 @@ Antes de começar:
 
 ---
 
+## 🏁 Resultado Final
+
+O LFS Pitbulls 12.4 foi compilado e inicializado com sucesso através do GRUB do Lubuntu.
+Durante o boot, o kernel 6.16.1 carrega corretamente, monta as partições conforme o fstab e inicia o sistema base sem erros críticos.
+Este resultado confirma o sucesso do processo de compilação e configuração manual de um sistema Linux completamente funcional, construído do zero.
+
+Data de finalização do projeto 08/11/2025
+
+---
+
 ## 🧠 Aprendizados e Desafios
 
 - Compreensão detalhada do funcionamento interno de um sistema Linux.
 - Experiência com compilação manual de pacotes e gerenciamento de dependências.
 - Otimização de recursos em hardware limitado.
 - Identificação de gargalos de performance durante a construção.
+- Solução de problemas reais com bootloaders (GRUB) e tabelas GPT/BIOS.
 - Prática com chroot, toolchain cross-compilation, e configuração de kernel.
 
 ---
@@ -125,6 +138,6 @@ Este projeto segue a licença MIT — sinta-se livre para usar, modificar e comp
 
 ✨ Autor
 
-Maycon
-Estudante de Ciência da Computação
+Maycon de Sousa Palácio
+Estudante de Ciências da Computação
 📧 Contato: maycondesousapalacio@gmail.com
