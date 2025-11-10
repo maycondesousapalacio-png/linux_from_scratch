@@ -108,10 +108,10 @@ ls -la /etc/bash.bashrc*
 
 ### Resultado
 
-✅ $LFS/tools/ - Vazio e pronto
-✅ Estrutura de diretórios - Correta
-✅ Links simbólicos - Corretos
-✅ Ownership - lfs onde necessário
+ $LFS/tools/ - Vazio e pronto
+ Estrutura de diretórios - Correta
+ Links simbólicos - Corretos
+ Ownership - lfs onde necessário
 
 Após recomeçar o Chapter 5 completamente, a compilação procedeu sem erros.
 

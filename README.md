@@ -138,10 +138,17 @@ Este projeto segue a licença MIT — sinta-se livre para usar, modificar e comp
 
 Autores
 
-Maycon de Sousa Palácio
-Afonso Rafael Evangelista da Silva
-Ruan Lopes Dourado
-Filipe Augusto Izidro de Melo
-André Luidhy Menezes Barbosa
+- Maycon de Sousa Palácio
+- Afonso Rafael Evangelista da Silva
+- Ruan Lopes Dourado
+- Filipe Augusto Izidro de Melo
+- André Luidhy Menezes Barbosa
+
 Estudantes de Ciências da Computação
-📧 Contato: maycondesousapalacio@gmail.com
+
+📧 Contatos: 
+- maycondesousapalacio@gmail.com
+- programadoafonso@gmail.com
+- ruanlopes.99@gmail.com
+- melofilipe258@gmail.com
+- andreluidhy19@gmail.com
