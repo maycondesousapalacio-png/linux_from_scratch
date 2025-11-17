@@ -536,6 +536,8 @@ make html
 make check 2>&1 | tee gmp-check-log   # aguardando esse
 # Verifica o número de testes passados (deve ser 197 ou 199)
 awk '/# PASS:/{total+=$3} ; END{print total}' gmp-check-log
+make install
+make install-html
 
 
 #           25. MPFR
@@ -878,8 +880,9 @@ cd bash-5.3/
             --with-installed-readline \
             --docdir=/usr/share/doc/bash-5.3
 echo $?
-make -j1  # aguardando esse
+make -j1
 echo $?
+chown -R tester .
 # Executa testes com expect
 LC_ALL=C.UTF-8 su -s /usr/bin/expect tester << "EOF"
 set timeout -1
@@ -935,6 +938,8 @@ cd gperf-3.3/
 ./configure --prefix=/usr --docdir=/usr/share/doc/gperf-3.3
 echo $?
 make -j1
+echo $?
+make install
 
 
 #           43. Expat
@@ -1177,6 +1182,7 @@ cd ../
 tar xvf flit_core-3.12.0.tar.gz 
 cd flit_core-3.12.0/
 pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps $PWD
+pip3 install --no-index --find-links dist flit_core
 
 
 #           56. Packaging
@@ -1279,7 +1285,7 @@ FORCE_UNSAFE_CONFIGURE=1 ./configure \
             --prefix=/usr            \
             --enable-no-install-program=kill,uptime
 echo $?
-make -j1     # aguardando esse
+make -j1
 echo $?
 make install
 echo $?
@@ -1366,7 +1372,7 @@ echo depends bli part_gpt > grub-core/extra_deps.lst
             --disable-efiemu  \
             --disable-werror
 echo $?
-make -j1    # aguardando esse
+make -j1
 echo $?
 make install
 mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions
@@ -1438,6 +1444,7 @@ echo $?
 
 
 cd ../
+rm -r make-4.4.1/
 tar xvf make-4.4.1.tar.gz 
 cd make-4.4.1/
 ./configure --prefix=/usr
@@ -1452,6 +1459,7 @@ echo $?
 
 
 cd ../
+rm -r patch-2.8/
 tar xvf patch-2.8.tar.xz 
 cd patch-2.8/
 ./configure --prefix=/usr
@@ -1571,7 +1579,7 @@ pip3 install --no-index --find-links dist Jinja2
 
 
 cd ../
-xvf systemd-257.8.tar.gz 
+tar xvf systemd-257.8.tar.gz 
 cd systemd-257.8/
 sed -e 's/GROUP="render"/GROUP="video"/' \
     -e 's/GROUP="sgx", //'               \

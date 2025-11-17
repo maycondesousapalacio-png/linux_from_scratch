@@ -133,11 +133,11 @@ grub-install --target i386-pc /dev/sda
 # OUTRO PROBLEMA IDENTIFICADO:
 # Problema identificado! O disco está com GPT e precisa de uma BIOS Boot Partition para o GRUB BIOS.
 
-# SOLUÇÃO: Configurar o GRUB do sistema host (Ubuntu) para detectar o LFS
+# SOLUÇÃO: Configurar o GRUB do sistema host (Lubuntu) para detectar o LFS
 exit    # Saindo do chroot do LFS para voltar ao sistema host
 
 
-#            Configuração no Sistema Host (Ubuntu)
+#            Configuração no Sistema Host (Lubuntu)
 
 
 # Edita a configuração padrão do GRUB no sistema host
